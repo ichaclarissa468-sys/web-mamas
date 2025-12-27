@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For You</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  height:100vh;
+  background:url("assets/bg1.jpg") center/cover no-repeat;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family: Georgia, serif;
+  transition: background 1s ease;
+}
+
+/* container */
+.slide{
+  text-align:center;
+  width:100%;
+}
+
+/* SLIDE 1 */
+.photo{
+  width:220px;
+  opacity:0;
+  transform-origin: top center;
+}
+
+/* trigger animasi */
+.photo.show{
+  animation: unfoldPhoto 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.photo.hide{
+  opacity:0;
+}
+
+@keyframes unfoldPhoto{
+  /* awal: kegulung & ga keliatan */
+  0%{
+    opacity:0;
+    transform:
+      perspective(900px)
+      rotateX(85deg)
+      scaleY(0.05)
+      skewX(2deg);
+  }
+
+  /* mulai kebuka */
+  45%{
+    opacity:1;
+    transform:
+      perspective(900px)
+      rotateX(20deg)
+      scaleY(0.85)
+      skewX(-1deg);
+  }
+
+  /* hampir kebuka */
+  70%{
+    transform:
+      perspective(900px)
+      rotateX(0deg)
+      scaleY(1)
+      skewX(0.8deg);
+  }
+
+  /* ketiup angin dikit */
+  85%{
+    transform:
+      perspective(900px)
+      rotateZ(-0.8deg)
+      skewX(-0.6deg);
+  }
+
+  /* settle */
+  100%{
+    opacity:1;
+    transform:
+      perspective(900px)
+      rotateZ(0deg)
+      skewX(0deg);
+  }
+}
+
+/* SLIDE 2 */
+.name-box{
+  display:none;
+  flex-direction:column;
+  gap:14px;
+  align-items:center;
+  padding:24px;
+  background:rgba(255,255,255,0.75);
+  border-radius:20px;
+  width:80%;
+  max-width:300px;
+  margin:auto;
+}
+
+.name-box.show{
+  display:flex;
+}
+
+.name-box p{
+  font-size:14px;
+  color:#5a3a4d;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid #d8a7b1;
+  text-align:center;
+  font-size:15px;
+}
+
+button{
+  padding:10px 18px;
+  border:none;
+  border-radius:14px;
+  background:#d8a7b1;
+  color:white;
+  font-size:14px;
+}
+
+.error{
+  font-size:13px;
+  color:#b04a5a;
+  display:none;
+}
+
+/* ===== FLOATING ELEMENTS ===== */
+.float-layer{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+
+.butterfly{
+  position:absolute;
+  font-size:18px;
+  opacity:0.8;
+  animation:flyUp 12s linear forwards;
+}
+
+.heart{
+  position:absolute;
+  font-size:14px;
+  opacity:0.7;
+  animation:floatUp 10s linear forwards;
+}
+
+@keyframes flyUp{
+  0%{
+    transform:translateY(110vh) scale(0.8);
+    opacity:0;
+  }
+  10%{opacity:1}
+  100%{
+    transform:translateY(-120vh) scale(1.2);
+    opacity:0;
+  }
+}
+
+@keyframes floatUp{
+  0%{
+    transform:translateY(110vh) scale(0.6);
+    opacity:0;
+  }
+  15%{opacity:1}
+  100%{
+    transform:translateY(-120vh) scale(1);
+    opacity:0;
+  }
+}
+
+/* ===== SLIDE 3: CAPTCHA ===== */
+.captcha-box{
+  display:none;
+  flex-direction:column;
+  gap:12px;
+  align-items:center;
+  padding:18px;
+  background:rgba(255,255,255,0.82);
+  border-radius:18px;
+  width:90%;
+  max-width:330px;
+  margin:22px auto 0;
+}
+
+.captcha-box.show{
+  display:flex;
+}
+
+.captcha-title{
+  font-size:12.5px;
+  color:#5a3a4d;
+  line-height:1.35;
+  text-align:center;
+}
+
+.captcha-grid{
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:8px;
+}
+
+.captcha-grid img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  border-radius:12px;
+  border:3px solid transparent;
+  cursor:pointer;
+  transition:0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.captcha-grid img.selected{
+  border-color:#d8a7b1;
+  filter:brightness(0.88);
+  transform:scale(0.98);
+}
+
+.captcha-actions{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  width:100%;
+}
+
+.captcha-msg{
+  font-size:13px;
+  color:#b04a5a;
+  min-height:18px;
+  text-align:center;
+}
+
+.btn-disabled{
+  opacity:.55;
+  pointer-events:none;
+}
+
+/* transisi bg nyampur */
+#fadeOverlay{
+  position:fixed;
+  inset:0;
+  background:#fff;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .7s ease;
+  z-index:999;
+}
+#fadeOverlay.on{ opacity:1; }
+
+/* klik lebih smooth */
+.captcha-grid img{
+  transition: transform .18s ease, filter .18s ease, border-color .18s ease;
+}
+
+.captcha-grid img:active{
+  transform: scale(0.96);
+}
+
+/* sparkle layer */
+#sparkleLayer{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+/* percikan orange */
+.sparkle{
+  position:absolute;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background: radial-gradient(circle, #ffd36a 0%, #ff8a00 55%, rgba(255,138,0,0) 70%);
+  box-shadow:
+    0 0 18px rgba(255, 138, 0, 1),
+    0 0 35px rgba(255, 211, 106, 0.9);
+  animation: sparkleBurst 520ms ease-out forwards;
+}
+
+@keyframes sparkleBurst{
+  0%{ transform: translate(0,0) scale(1.3); opacity: 1; }
+  100%{ transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+
+/* font agak bold */
+.captcha-title{ font-weight: 700; }
+button{ font-weight: 700; }
+.name-box p{ font-weight: 600; }
+
+/* glow kuning selected */
+.captcha-grid img.selected{
+  border-color:#ffd36a;
+  filter:brightness(1.05) saturate(1.1);
+  box-shadow:
+    0 0 0 3px rgba(255, 211, 106, 0.55),
+    0 0 24px rgba(255, 211, 106, 0.95),
+    0 0 45px rgba(255, 211, 106, 0.75);
+  transform:scale(0.98);
+}
+
+/* glow sementara */
+.captcha-grid img.flash{
+  box-shadow:
+    0 0 0 4px rgba(255, 211, 106, 0.7),
+    0 0 35px rgba(255, 211, 106, 1),
+    0 0 70px rgba(255, 170, 0, 0.85);
+}
+
+/* ===== SLIDE 4: REASONS (FIXED) ===== */
+.reasons-wrap{
+  display:none;
+  width:92%;
+  max-width:380px;
+  margin:22px auto 0;
+  padding: 22px 18px 18px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.78);
+  box-shadow: 0 18px 55px rgba(0,0,0,0.14);
+  border: 1px solid rgba(186,160,175,0.35);
+  backdrop-filter: blur(6px);
+}
+
+.reasons-wrap.show{
+  display:block;
+  animation: reasonsPop .6s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes reasonsPop{
+  from{ opacity:0; transform: translateY(16px) scale(.98); }
+  to{ opacity:1; transform: translateY(0) scale(1); }
+}
+
+.reasons-title{
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: .2px;
+  color: #7b2f57;
+  margin-bottom: 4px;
+  text-align:center;
+}
+
+.reasons-sub{
+  font-size: 13px;
+  color: rgba(65,45,58,0.75);
+  margin-bottom: 14px;
+  text-align:center;
+}
+
+.reasons-list{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* item */
+.reason-item{
+  border-radius: 12px;
+  border: 1px solid rgba(120, 90, 108, 0.28);
+  background: rgba(255,255,255,0.92);
+  overflow:hidden;
+  transition: transform .25s ease, box-shadow .55s ease, background .65s ease, border-color .65s ease;
+}
+
+.reason-item:active{ transform: scale(0.992); }
+
+.reason-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding: 12px 12px;
+  cursor:pointer;
+  user-select:none;
+}
+
+/* IMPORTANT: pakai class baru biar ga bentrok sama floating .heart */
+.reason-heart{
+  width:22px;
+  min-width:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  line-height:1;
+  color:#b34b78;
+  filter: drop-shadow(0 0 0 rgba(0,0,0,0));
+  transform: translateY(1px);
+  transition: transform .25s cubic-bezier(.22,1,.36,1), filter .35s ease;
+}
+
+.reason-name{
+  text-align:left;
+  font-weight: 750;
+  font-size: 13.5px;
+  color:#4a2c3d;
+}
+
+/* body toggle */
+.reason-body{
+  max-height:0;
+  opacity:0;
+  padding: 0 12px;
+  transition: max-height .75s cubic-bezier(.22,1,.36,1), opacity .35s ease;
+}
+
+.reason-desc{
+  padding: 0 0 12px;
+  font-size: 12.5px;
+  color: rgba(58,40,52,0.78);
+  line-height: 1.35;
+}
+
+/* OPEN state: soft pink gradient + glow */
+.reason-item.open{
+  border-color: rgba(180,90,135,0.35);
+  background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,230,242,0.95) 55%, rgba(255,214,232,0.95) 100%);
+  box-shadow:
+    0 10px 34px rgba(160, 90, 130, 0.14),
+    0 0 0 3px rgba(255,180,215,0.18);
+}
+
+.reason-item.open .reason-body{
+  max-height: 180px;
+  opacity:1;
+}
+
+.reason-item.open .reason-heart{
+  color:#ff4fa3;
+  filter: drop-shadow(0 0 16px rgba(255,120,180,0.95));
+  animation: heartSoft .7s cubic-bezier(.22,1.35,.36,1) both;
+}
+
+@keyframes heartSoft{
+  0%{ transform: translateY(1px) scale(.72); }
+  45%{ transform: translateY(1px) scale(1.22); }
+  72%{ transform: translateY(1px) scale(.98); }
+  100%{ transform: translateY(1px) scale(1.05); }
+}
+
+/* button: hidden until ALL open */
+.open-letter{
+  display:none;
+  margin: 14px auto 0;
+  width: 90%;
+  padding: 11px 14px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(180deg, #b85a86 0%, #8d2f5e 100%);
+  color: white;
+  font-weight: 800;
+  letter-spacing: .2px;
+  box-shadow: 0 12px 26px rgba(141,47,94,0.25);
+}
+
+.open-letter.show{
+  display:block;
+  animation: reasonsPop .6s cubic-bezier(.22,1,.36,1) both;
+}
+
+.open-letter:active{ transform: scale(0.99); }
+
+.reasons-foot{
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: rgba(65,45,58,0.65);
+  text-align:center;
+}
+
+/* pink sparkle hearts layer */
+#pinkSparkLayer{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:1000;
+}
+
+.pink-spark{
+  position:absolute;
+  font-size:12px;
+  opacity:0;
+  animation: pinkSpark 720ms ease-out forwards;
+  filter: drop-shadow(0 0 10px rgba(255,120,180,0.9));
+}
+
+@keyframes pinkSpark{
+  0%{ transform: translate(0,0) scale(.7); opacity:0; }
+  20%{ opacity:1; }
+  100%{ transform: translate(var(--dx), var(--dy)) scale(1.15); opacity:0; }
+}
+
+/* ===== CAPTCHA BALON PINK ===== */
+#balloonLayer{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:1000;
+}
+
+.balloon{
+  position:absolute;
+  bottom:-40px;
+  font-size:22px;
+  opacity:0.85;
+  animation: floatBalloon 6s linear forwards;
+}
+
+@keyframes floatBalloon{
+  0%{
+    transform: translateY(0) scale(0.8);
+    opacity:0;
+  }
+  10%{opacity:1}
+  100%{
+    transform: translateY(-120vh) scale(1.1);
+    opacity:0;
+  }
+}
+
+/* hint text */
+.captcha-hint{
+  font-size:12.5px;
+  color:#b04a5a;
+  margin-top:6px;
+  display:none;
+}
+
+/* ===== SLIDE 5: OPEN LETTER ===== */
+.letter-wrap{
+  display:none;
+  width:100%;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+.letter-wrap.show{
+  display:flex;
+  animation: fadeLetter .8s ease forwards;
+}
+
+@keyframes fadeLetter{
+  from{ opacity:0; transform: translateY(12px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+
+/* ENVELOPE */
+.envelope{
+  width:260px;
+  height:170px;
+  background: linear-gradient(180deg,#fff,#ffdbe9);
+  border-radius:12px;
+  position:relative;
+  box-shadow:0 18px 40px rgba(0,0,0,0.2);
+  cursor:pointer;
+  overflow:hidden;
+}
+
+.envelope.open{
+  opacity:0;
+  transform: translateY(-30px);
+  transition: opacity .8s ease, transform .8s ease;
+  pointer-events:none;
+}
+
+.envelope::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(135deg, transparent 50%, rgba(255,200,220,.9) 50%);
+  clip-path: polygon(0 0, 100% 0, 50% 60%);
+}
+
+/* flap */
+.flap{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:60%;
+  background:linear-gradient(180deg,#ffe8f1,#ffc2d8);
+  clip-path: polygon(0 0,100% 0,50% 100%);
+  transform-origin:top;
+  transition:transform .8s cubic-bezier(.22,1,.36,1);
+  z-index:3;
+}
+
+.envelope.open .flap{
+  transform:rotateX(180deg);
+}
+
+/* stamp */
+.stamp{
+  position:absolute;
+  right:16px;
+  top:14px;
+  font-size:26px;
+  z-index:4;
+}
+
+/* LETTER PAPER */
+.paper{
+  width:230px;
+  max-height:0;
+  background: linear-gradient(180deg,#e7d2b3,#dbc19a);
+  border-radius:8px;
+  margin-top:-20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+  overflow:hidden;
+  transition:max-height 2.2s cubic-bezier(.22,1,.36,1);
+}
+
+.envelope.open + .paper{
+  max-height:1200px;
+}
+
+/* text */
+.paper-inner{
+  padding:18px 16px;
+  font-size:13px;
+  line-height:1.55;
+  color:#4b3a2c;
+  white-space:pre-wrap;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="fadeOverlay"></div>
+
+<div class="slide">
+
+  <!-- SLIDE 1 -->
+  <img src="assets/photo1.jpg" class="photo" id="photo">
+
+  <!-- SLIDE 2 -->
+  <div class="name-box" id="nameBox">
+    <p>heyy isi dengan panggilan kesayanganku ke kmu ૮ ˙Ⱉ˙ ა</p>
+    <input type="text" id="nameInput" placeholder="ketik di sini">
+    <button id="submitBtn">lanjut</button>
+    <p class="error" id="errorText">
+      ihh salah! coba diinget lgi dong sayang (˵ˊᯅˋ˵)
+    </p>
+  </div>
+
+  <!-- SLIDE 3 -->
+  <div class="captcha-box" id="captchaBox">
+    <div class="captcha-title">
+      Choose a man who is really great, cool, handsome, kind, sporty, goat and ofc loves me!
+    </div>
+
+    <div class="captcha-grid" id="captchaGrid">
+      <img src="assets/captcha1.jpg" data-id="1" alt="c1">
+      <img src="assets/captcha2.jpg" data-id="2" alt="c2">
+      <img src="assets/captcha3.jpg" data-id="3" alt="c3">
+      <img src="assets/captcha4.jpg" data-id="4" alt="c4">
+      <img src="assets/captcha5.jpg" data-id="5" alt="c5">
+      <img src="assets/captcha6.jpg" data-id="6" alt="c6">
+      <img src="assets/captcha7.jpg" data-id="7" alt="c7">
+      <img src="assets/captcha8.jpg" data-id="8" alt="c8">
+      <img src="assets/captcha9.jpg" data-id="9" alt="c9">
+    </div>
+
+    <div class="captcha-actions">
+      <button id="verifyBtn">verify</button>
+      <button id="nextBtn" class="btn-disabled">next</button>
+    </div>
+
+    <div class="captcha-msg" id="captchaMsg"></div>
+    <div class="captcha-hint" id="captchaHint">
+  Hint : kamu perlu pilih 5
+</div>
+  </div>
+
+  <!-- SLIDE 4 (MOVED INSIDE .slide so it centers) -->
+  <div class="reasons-wrap" id="reasonsWrap">
+    <div class="reasons-title">Reasons Why I Love You</div>
+    <div class="reasons-sub">Tap each heart to reveal one reason.</div>
+
+    <div class="reasons-list" id="reasonsList"></div>
+
+    <button class="open-letter" id="openLetterBtn">
+      i have something for my baby! ₍ᐢ..ᐢ₎⊹
+    </button>
+
+    <div class="reasons-foot">One final surprise awaits.</div>
+  </div>
+
+  <!-- SLIDE 5: OPEN LETTER -->
+<div class="letter-wrap" id="letterWrap">
+
+  <div class="envelope" id="envelope">
+    <div class="flap"></div>
+    <div class="stamp">🌺</div>
+  </div>
+
+  <div class="paper" id="paper">
+    <div class="paper-inner" id="letterText"></div>
+  </div>
+
+</div>
+
+</div>
+
+<audio id="music" src="assets/song.mp3"></audio>
+
+<div id="sparkleLayer"></div>
+<div id="pinkSparkLayer"></div>
+<div id="balloonLayer"></div>
+
+<script>
+const body = document.body;
+const photo = document.getElementById("photo");
+const music = document.getElementById("music");
+
+const nameBox = document.getElementById("nameBox");
+const nameInput = document.getElementById("nameInput");
+const submitBtn = document.getElementById("submitBtn");
+const errorText = document.getElementById("errorText");
+
+const fadeOverlay = document.getElementById("fadeOverlay");
+const captchaBox = document.getElementById("captchaBox");
+const captchaGrid = document.getElementById("captchaGrid");
+const captchaImgs = captchaGrid.querySelectorAll("img");
+const verifyBtn = document.getElementById("verifyBtn");
+const nextBtn = document.getElementById("nextBtn");
+const captchaMsg = document.getElementById("captchaMsg");
+const sparkleLayer = document.getElementById("sparkleLayer");
+
+function popSparkles(x, y){
+  const count = 16;
+  for(let i=0;i<count;i++){
+    const s = document.createElement("div");
+    s.className = "sparkle";
+    s.style.left = (x - 4) + "px";
+    s.style.top  = (y - 4) + "px";
+
+    const dx = (Math.random()*110 - 55) + "px";
+    const dy = (Math.random()*110 - 55) + "px";
+    s.style.setProperty("--dx", dx);
+    s.style.setProperty("--dy", dy);
+
+    sparkleLayer.appendChild(s);
+    setTimeout(()=>s.remove(), 600);
+  }
+}
+
+let step = 0;
+const CORRECT_NAME = "mamas";
+
+/* TAP BACKGROUND - SLIDE 1 */
+body.addEventListener("click", () => {
+  if(step === 0){
+    photo.classList.add("show");
+    music.volume = 0.6;
+    music.play();
+    step = 1;
+  }
+});
+
+/* TAP FOTO - PINDAH KE SLIDE 2 */
+photo.addEventListener("click", () => {
+  if(step === 1){
+    photo.classList.add("hide");
+    setTimeout(() => {
+      body.style.background = 'url("assets/bg2.jpg") center/cover no-repeat';
+      photo.style.display = "none";
+      nameBox.classList.add("show");
+      step = 2;
+    }, 1200);
+  }
+});
+
+/* helper fade */
+function fadeToBg(url, after){
+  fadeOverlay.classList.add("on");
+  setTimeout(() => {
+    body.style.background = `url("${url}") center/cover no-repeat`;
+    setTimeout(() => {
+      fadeOverlay.classList.remove("on");
+      if (after) after();
+    }, 700);
+  }, 700);
+}
+
+/* CEK NAMA -> masuk captcha */
+submitBtn.addEventListener("click", () => {
+  if(nameInput.value === CORRECT_NAME){
+    errorText.style.display = "none";
+    nameBox.classList.remove("show");
+
+    fadeToBg("assets/bg3.jpg", () => {
+      captchaBox.classList.add("show");
+      step = 3;
+    });
+  } else {
+    errorText.style.display = "block";
+  }
+});
+
+/* ===== SLIDE 3: CAPTCHA LOGIC ===== */
+const CORRECT_CAPTCHA = [2,4,5,7,9];
+let picked = new Set();
+
+captchaImgs.forEach(img => {
+  img.addEventListener("click", (e) => {
+    img.classList.add("flash");
+    setTimeout(()=>img.classList.remove("flash"), 180);
+
+    popSparkles(e.clientX, e.clientY);
+
+    const id = Number(img.dataset.id);
+    if (picked.has(id)) {
+      picked.delete(id);
+      img.classList.remove("selected");
+    } else {
+      picked.add(id);
+      img.classList.add("selected");
+    }
+
+    captchaMsg.textContent = "";
+    nextBtn.classList.add("btn-disabled");
+  });
+});
+
+function isCaptchaCorrect(){
+  if (picked.size !== CORRECT_CAPTCHA.length) return false;
+  return CORRECT_CAPTCHA.every(x => picked.has(x));
+}
+
+let verifyFailCount = 0;
+const captchaHint = document.getElementById("captchaHint");
+const balloonLayer = document.getElementById("balloonLayer");
+function spawnBalloon(){
+  const b = document.createElement("div");
+  b.className = "balloon";
+  b.textContent = "🎈";
+  b.style.left = Math.random()*90 + "%";
+  balloonLayer.appendChild(b);
+  setTimeout(()=>b.remove(),6000);
+}
+verifyBtn.addEventListener("click", () => {
+  if (isCaptchaCorrect()) {
+
+    // reset semua
+    verifyFailCount = 0;
+    captchaHint.style.display = "none";
+    balloonLayer.innerHTML = "";
+
+    captchaMsg.style.color = "#2f7a4f";
+    captchaMsg.textContent = "verified ✅";
+    nextBtn.classList.remove("btn-disabled");
+
+  } else {
+
+    verifyFailCount++;
+
+    captchaMsg.style.color = "#b04a5a";
+
+    if (verifyFailCount === 1) {
+      captchaMsg.textContent = "wrong xixi😗 pilih yang bener dong wlee!";
+    }
+    else if (verifyFailCount === 2) {
+      captchaMsg.textContent = "eitss gimana nih? udh jelas bgt loh pdahal hihi";
+    }
+    else {
+      captchaMsg.textContent = "hey! fokus!";
+      captchaHint.style.display = "block";
+      spawnBalloon();
+    }
+
+    nextBtn.classList.add("btn-disabled");
+  }
+});
+
+/* ===== SLIDE 4: REASONS (FIXED LOGIC) ===== */
+const reasonsWrap = document.getElementById("reasonsWrap");
+const reasonsList = document.getElementById("reasonsList");
+const openLetterBtn = document.getElementById("openLetterBtn");
+
+const pinkSparkLayer = document.getElementById("pinkSparkLayer");
+
+function popPinkHearts(x, y){
+  const count = 9;
+  for(let i=0;i<count;i++){
+    const s = document.createElement("div");
+    s.className = "pink-spark";
+    s.textContent = "💗";
+    s.style.left = (x - 6) + "px";
+    s.style.top  = (y - 10) + "px";
+    s.style.setProperty("--dx", (Math.random()*90 - 45) + "px");
+    s.style.setProperty("--dy", (Math.random()*90 - 60) + "px");
+    pinkSparkLayer.appendChild(s);
+    setTimeout(()=>s.remove(), 800);
+  }
+}
+
+const reasonsData = [
+  { title: "Your Dedication", desc: "You never give up, even when things get hard." },
+  { title: "Your Tenderness", desc: "You make me feel loved every single day." },
+  { title: "Your Humor", desc: "You always know how to make me laugh." },
+  { title: "Your Beauty", desc: "Your soul is the most beautiful thing I’ve ever known." },
+  { title: "Your Heart", desc: "that stays through it all" },
+  { title: "Our Future", desc: "I can’t wait for all our tomorrows together." },
+];
+
+function updateOpenLetter(){
+  const opened = document.querySelectorAll(".reason-item.open").length;
+  if(opened === reasonsData.length){
+    openLetterBtn.classList.add("show");
+  } else {
+    openLetterBtn.classList.remove("show");
+  }
+}
+
+reasonsData.forEach((item) => {
+  const div = document.createElement("div");
+  div.className = "reason-item";
+  div.innerHTML = `
+    <div class="reason-head">
+      <div class="reason-heart">♡</div>
+      <div class="reason-name">${item.title}</div>
+    </div>
+    <div class="reason-body">
+      <div class="reason-desc">${item.desc}</div>
+    </div>
+  `;
+  reasonsList.appendChild(div);
+
+  const head = div.querySelector(".reason-head");
+  const heart = div.querySelector(".reason-heart");
+
+  head.addEventListener("click", (e) => {
+    const willOpen = !div.classList.contains("open");
+    div.classList.toggle("open");
+
+    heart.textContent = div.classList.contains("open") ? "♥" : "♡";
+
+    if(willOpen){
+      popPinkHearts(e.clientX, e.clientY);
+    }
+
+    updateOpenLetter();
+  });
+});
+
+nextBtn.addEventListener("click", () => {
+  if (nextBtn.classList.contains("btn-disabled")) return;
+
+  captchaBox.classList.remove("show");
+
+  fadeToBg("assets/bg4.jpg", () => {
+    reasonsWrap.classList.add("show");
+    updateOpenLetter();
+  });
+});
+
+openLetterBtn.addEventListener("click", () => {
+  reasonsWrap.classList.remove("show");
+  letterWrap.classList.add("show");
+});
+// ===== SLIDE 5: OPEN LETTER =====
+const letterWrap = document.getElementById("letterWrap");
+const envelope = document.getElementById("envelope");
+const letterText = document.getElementById("letterText");
+
+const letterContent = `aku tw mamas lgi capee, mybe not in a way that everyone can see, but aku pgn mamas tau satu hal kecil ajaaa:D u are so loved, even in this phase, even when things feel confusing or empty.
+
+aku ga mau nyuruh mamas buat jadi kuat atau harus ngerti semuanya sekarang ajaaa, aku cuma mau nemenin, stay here, quietly, with u (｡･ｪ･｡).
+
+whtever uve been through lately, it doesnt make u less of a person, it doesnt change how precious u are.
+
+soal iman, soal pencarian, soal smwww pertanyaan di kepala mamas, take it slow yaa, at ur own pace, no pressure at all.
+
+hope u start to feel like giving islam a try lgii, maybe with a different intention, a softer one, its okay n in this searching phase, mamas ttp bleh try whateverrrr~ kind of worship feels right to u right now.
+
+aku selalu bangga sm usaha mamas, sekecil apa pun itu, karena aku tau mamas bner" nyoba pake hati (๑ᵔ⤙ᵔ๑).
+
+n im sorry if sometimes the way i love u doesnt always reach u the way u need, im still learning too T__T.
+
+aku tau mamas pernah berusaha sejauh itu dulu, n that already says so much about ur heart.
+
+aku percaya mamas, n i care about u in a way thats gentle, not forcing, not demanding.
+
+im not going anywhere, i just wnna be a place where mamas can rest for a bit ( ꒰ᐢ⸝⸝𖦹 ·̫ 𖦹⸝⸝ᐢ꒱♡ ).
+
+i hope mamas can feel safe, feel held, n feel loved, even on the days when everything feels heavy, even when mamas feels unsure about everything.
+
+u dont have to explain urself all the time, u dont have to have the right words, aku ttp di sini, listening, loving, n choosing u in the quiet ways (๑´•᎔•๑).
+
+kalau suatu hari mamas ngerasa lelah banget, semoga mamas inget kalau ada aku yg selalu percaya sm proses ini, sm kamu, n sm semua langkah kecil yg lgi kamu jalanin sekarang yaa.`;
+
+let i = 0;
+function typeLetter(){
+  if(i < letterContent.length){
+    letterText.textContent += letterContent.charAt(i);
+    i++;
+    setTimeout(typeLetter, 38); // pelan lembut
+  }
+}
+
+envelope.addEventListener("click",()=>{
+  envelope.classList.add("open");
+
+  // tunggu amplop menghilang dulu
+  setTimeout(()=>{
+    typeLetter();
+  }, 1400);
+});
+</script>
+
+<div class="float-layer" id="floatLayer"></div>
+
+</body>
+</html>
